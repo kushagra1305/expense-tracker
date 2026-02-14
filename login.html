@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login • Expense Tracker</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 35px 30px;
+      width: 340px;
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      text-align: center;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      outline: none;
+      transition: 0.2s;
+      font-size: 14px;
+    }
+
+    input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.25s;
+      font-size: 15px;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(79,70,229,0.35);
+    }
+
+    .toggle {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #4f46e5;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .toggle:hover {
+      text-decoration: underline;
+    }
+
+    .logo {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <div class="logo">💰</div>
+    <h2 id="form-title">Welcome Back</h2>
+    <p class="subtitle">Login to manage your expenses</p>
+
+    <input id="name" placeholder="Full Name" style="display:none" />
+    <input id="email" placeholder="Email address" />
+    <input id="password" type="password" placeholder="Password" />
+
+    <button onclick="submitForm()">Login</button>
+
+    <div class="toggle" onclick="toggleForm()">
+      Don’t have an account? Signup
+    </div>
+  </div>
+
+  <script>
+    const API = "http://localhost:5000";
+    let isLogin = true;
+
+    function toggleForm() {
+      isLogin = !isLogin;
+
+      document.getElementById("form-title").innerText =
+        isLogin ? "Welcome Back" : "Create Account";
+
+      document.querySelector(".subtitle").innerText =
+        isLogin ? "Login to manage your expenses" : "Start tracking your money";
+
+      document.getElementById("name").style.display = isLogin ? "none" : "block";
+
+      document.querySelector("button").innerText = isLogin ? "Login" : "Signup";
+
+      document.querySelector(".toggle").innerText =
+        isLogin ? "Don’t have an account? Signup" : "Already have an account? Login";
+    }
+
+    async function submitForm() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const url = isLogin
+        ? `${API}/api/auth/login`
+        : `${API}/api/auth/signup`;
+
+      const body = isLogin ? { email, password } : { name, email, password };
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("name", data.name);
+          window.location.href = "index.html";
+        } else {
+          alert(data.message || "Something went wrong");
+        }
+      } catch (err) {
+        alert("Server not running on localhost:5000");
+      }
+    }
+  </script>
+
+</body>
+</html>
