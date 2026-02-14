@@ -2,8 +2,13 @@
 let transactions = [];
 const token = localStorage.getItem("token");
 
-// 🔗 Backend URL (CHANGE after deployment)
-const API = "http://localhost:5000";
+// 🔗 LIVE BACKEND URL
+const API = "https://expense-tracker-backend-msfg.onrender.com";
+
+// अगर token नहीं है → login page
+if (!token) {
+  window.location.href = "login.html";
+}
 
 // ================= LOAD TRANSACTIONS =================
 async function loadTransactions() {
@@ -12,7 +17,7 @@ async function loadTransactions() {
       headers: { Authorization: "Bearer " + token }
     });
 
-    // अगर token गलत है → वापस login
+    // token invalid → logout
     if (!res.ok) {
       localStorage.clear();
       window.location.href = "login.html";
@@ -23,7 +28,7 @@ async function loadTransactions() {
     updateUI();
     updateMonthlySummary();
   } catch (err) {
-    alert("⚠️ Server not reachable");
+    alert("⚠️ Server not reachable. Please try again later.");
   }
 }
 
